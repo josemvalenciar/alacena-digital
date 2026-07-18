@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operación Alacena Digital - Manual Cyberpunk</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyberDark: '#08080c',
+                        cyberCard: '#0f0f18',
+                        cyberCyan: '#00f0ff',
+                        cyberMagenta: '#ff007f',
+                        cyberYellow: '#ffb700',
+                        cyberGreen: '#39ff14',
+                    },
+                    fontFamily: {
+                        mono: ['Fira Code', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- Estilos Personalizados Cyberpunk -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #08080c;
+            color: #e2e8f0;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 0, 127, 0.05) 0%, transparent 40%),
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 100%, 100% 100%, 100% 4px, 6px 100%;
+        }
+
+        .cyber-glow-cyan {
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.35);
+            border: 1px solid rgba(0, 240, 255, 0.6);
+        }
+
+        .cyber-glow-magenta {
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.35);
+            border: 1px solid rgba(255, 0, 127, 0.6);
+        }
+
+        .cyber-glow-green {
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.35);
+            border: 1px solid rgba(57, 255, 20, 0.6);
+        }
+
+        .cyber-glow-yellow {
+            box-shadow: 0 0 15px rgba(255, 183, 0, 0.35);
+            border: 1px solid rgba(255, 183, 0, 0.6);
+        }
+
+        .cyber-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+        }
+
+        /* Burbuja de diálogo estilo Manga */
+        .manga-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 30px;
+            border-width: 15px 15px 0;
+            border-style: solid;
+            border-color: #0f0f18 transparent;
+            display: block;
+            width: 0;
+        }
+
+        .manga-bubble-border::after {
+            content: '';
+            position: absolute;
+            bottom: -17px;
+            left: 29px;
+            border-width: 16px 16px 0;
+            border-style: solid;
+            border-color: rgba(0, 240, 255, 0.6) transparent;
+            display: block;
+            width: 0;
+            z-index: -1;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #08080c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00f0ff;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff007f;
+        }
+    </style>
+</head>
+<body class="cyber-grid min-h-screen pb-12 antialiased">
+
+    <!-- Notificación Flotante -->
+    <div id="cyber-toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-out bg-cyberCard border border-cyberCyan text-cyberCyan px-6 py-4 rounded shadow-[0_0_20px_rgba(0,240,255,0.4)] flex items-center space-x-3">
+        <span class="text-xl">⚡</span>
+        <span id="toast-message" class="text-sm font-semibold uppercase tracking-wider">Acción procesada con éxito</span>
+    </div>
+
+    <!-- HEADER FUTURISTA -->
+    <header class="border-b-2 border-cyberCyan bg-black/80 py-6 mb-8 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,240,255,0.1)_1px,transparent_1px)] bg-[size:100px_100%] animate-pulse"></div>
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center relative z-10">
+            <div class="mb-4 md:mb-0">
+                <div class="flex items-center space-x-2">
+                    <span class="px-2 py-0.5 bg-cyberMagenta text-black text-xs font-bold tracking-widest uppercase animate-pulse">DIRECTIVA EN LÍNEA</span>
+                    <span class="text-cyberCyan text-sm tracking-widest">SISTEMA OPERATIVO BETA-09</span>
+                </div>
+                <h1 class="text-3xl md:text-5xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyberCyan via-white to-cyberMagenta uppercase filter drop-shadow-[0_0_10px_rgba(0,240,255,0.3)]">
+                    Alacena Digital: IA Hack-Guide
+                </h1>
+                <p class="text-gray-400 text-xs md:text-sm tracking-widest mt-1">PROGRAMA DE CAPACITACIÓN AVANZADO PARA EQUIPOS NETRUNNER</p>
+            </div>
+            
+            <!-- Selector de Consolas (Pestañas) -->
+            <div class="flex space-x-2 bg-cyberCard p-1 border border-gray-800 rounded">
+                <button onclick="switchTab('student')" id="btn-student" class="px-4 py-2 text-sm uppercase tracking-wider transition-all font-bold bg-cyberCyan text-black cyber-glow-cyan">
+                    💻 Consola Netrunner
+                </button>
+                <button onclick="switchTab('mentor')" id="btn-mentor" class="px-4 py-2 text-sm uppercase tracking-wider transition-all font-bold text-gray-400 hover:text-white">
+                    🔐 Módulo Mentor
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4">
+
+        <!-- ==================== PESTAÑA: ESTUDIANTE / NETRUNNER ==================== -->
+        <section id="pane-student" class="space-y-8">
+            
+            <!-- TARJETA INTRODUCTORIA CON COMPAÑERO MANGA -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center bg-cyberCard border border-cyberCyan/30 p-6 rounded-lg relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-cyberCyan/5 rounded-full blur-xl"></div>
+                <!-- Ilustración Avatar Cyberpunk/Manga (Simulada con HTML/CSS estilizado) -->
+                <div class="flex flex-col items-center justify-center border-2 border-cyberCyan/50 p-4 rounded-lg bg-black relative h-48 lg:col-span-1">
+                    <div class="w-20 h-20 rounded-full border-4 border-cyberMagenta flex items-center justify-center bg-zinc-900 relative">
+                        <span class="text-4xl">🤖</span>
+                        <!-- Ojo cibernético brillante -->
+                        <div class="absolute top-4 right-4 w-3 h-3 bg-cyberCyan rounded-full animate-ping"></div>
+                        <div class="absolute top-4 right-4 w-2 h-2 bg-cyberCyan rounded-full"></div>
+                    </div>
+                    <span class="text-xs text-cyberCyan mt-3 tracking-widest uppercase font-bold">GIGA-BYTE v2.5</span>
+                    <span class="text-[10px] text-gray-500 tracking-wider">Tu Inteligencia de Soporte</span>
+                </div>
+                
+                <div class="lg:col-span-3 relative">
+                    <!-- Bocadillo Manga -->
+                    <div class="bg-black/60 border border-cyberCyan p-5 rounded-lg relative manga-bubble-border">
+                        <p class="text-cyberCyan font-bold uppercase tracking-wider mb-2 text-sm">💾 MENSAJE INTRANET DETECTADO:</p>
+                        <p class="text-gray-200 text-sm md:text-base leading-relaxed">
+                            "¡Atención, Netrunners! Hoy no vamos a pasar horas aburridas picando código a ciegas. Vamos a hackear la red y reclutaremos a un Androide Constructor (<span class="text-cyberMagenta font-bold">Google AI Studio</span>) para que escriba las líneas pesadas. Nosotros seremos los arquitectos y directores de la operación."
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLERO DE SEGUIMIENTO DE LA MISIÓN -->
+            <div class="bg-cyberCard border border-zinc-800 p-6 rounded-lg">
+                <div class="flex items-center space-x-3 mb-4">
+                    <span class="text-cyberMagenta text-xl">🎯</span>
+                    <h3 class="text-lg font-bold uppercase tracking-wider text-white">Estado de la Misión (Progreso Directo)</h3>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <div onclick="toggleMissionCheck(0)" id="step-0" class="p-3 border border-zinc-800 bg-black/40 rounded cursor-pointer transition-all hover:border-cyberCyan text-center group">
+                        <span class="block text-xs text-gray-500 uppercase group-hover:text-cyberCyan">Paso 00</span>
+                        <span class="block text-sm font-bold text-gray-300">Contenedor</span>
+                        <span class="text-xs text-zinc-600 block mt-1" id="check-icon-0">⚪ Pendiente</span>
+                    </div>
+                    <div onclick="toggleMissionCheck(1)" id="step-1" class="p-3 border border-zinc-800 bg-black/40 rounded cursor-pointer transition-all hover:border-cyberCyan text-center group">
+                        <span class="block text-xs text-gray-500 uppercase group-hover:text-cyberCyan">Paso 01</span>
+                        <span class="block text-sm font-bold text-gray-300">Inyectar UI</span>
+                        <span class="text-xs text-zinc-600 block mt-1" id="check-icon-1">⚪ Pendiente</span>
+                    </div>
+                    <div onclick="toggleMissionCheck(2)" id="step-2" class="p-3 border border-zinc-800 bg-black/40 rounded cursor-pointer transition-all hover:border-cyberCyan text-center group">
+                        <span class="block text-xs text-gray-500 uppercase group-hover:text-cyberCyan">Paso 02</span>
+                        <span class="block text-sm font-bold text-gray-300">Cámara & DB</span>
+                        <span class="text-xs text-zinc-600 block mt-1" id="check-icon-2">⚪ Pendiente</span>
+                    </div>
+                    <div onclick="toggleMissionCheck(3)" id="step-3" class="p-3 border border-zinc-800 bg-black/40 rounded cursor-pointer transition-all hover:border-cyberCyan text-center group">
+                        <span class="block text-xs text-gray-500 uppercase group-hover:text-cyberCyan">Paso 03</span>
+                        <span class="block text-sm font-bold text-gray-300">Despliegue</span>
+                        <span class="text-xs text-zinc-600 block mt-1" id="check-icon-3">⚪ Pendiente</span>
+                    </div>
+                    <div onclick="toggleMissionCheck(4)" id="step-4" class="p-3 border border-zinc-800 bg-black/40 rounded cursor-pointer transition-all hover:border-cyberCyan text-center group col-span-2 md:col-span-1">
+                        <span class="block text-xs text-gray-500 uppercase group-hover:text-cyberCyan">Paso 04</span>
+                        <span class="block text-sm font-bold text-gray-300">Toma de Control</span>
+                        <span class="text-xs text-zinc-600 block mt-1" id="check-icon-4">⚪ Pendiente</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 0: CREACIÓN DEL CONTENEDOR -->
+            <div class="cyber-glow-cyan bg-cyberCard p-6 rounded-lg relative">
+                <div class="absolute top-0 right-0 px-3 py-1 bg-cyberCyan text-black font-bold text-xs uppercase tracking-widest">
+                    Misión Inicial
+                </div>
+                <div class="flex items-center space-x-3 mb-4">
+                    <span class="p-2 bg-cyberCyan/10 text-cyberCyan rounded border border-cyberCyan/30">00</span>
+                    <h2 class="text-xl font-bold tracking-wider uppercase text-white">Fase de Preparación: El Cascarón Digital</h2>
+                </div>
+                <p class="text-gray-300 text-sm mb-4 leading-relaxed">
+                    Antes de solicitar ayuda al constructor cibernético, necesitamos preparar el archivo vacío en el disco local de tu laptop.
+                </p>
+                
+                <div class="bg-black/60 p-4 border border-zinc-800 rounded-lg space-y-3">
+                    <h4 class="text-cyberCyan font-bold text-xs uppercase tracking-wider">🛠️ Pasos de Construcción Directos:</h4>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex items-start space-x-2">
+                            <span class="text-cyberCyan">▶</span>
+                            <span>Abre tu editor de texto favorito (como <strong>Bloc de notas</strong> o <strong>VS Code</strong>).</span>
+                        </li>
+                        <li class="flex items-start space-x-2">
+                            <span class="text-cyberCyan">▶</span>
+                            <span>Crea un nuevo archivo limpio, sin escribir nada dentro todavía.</span>
+                        </li>
+                        <li class="flex items-start space-x-2">
+                            <span class="text-cyberCyan">▶</span>
+                            <span>Guárdalo en tu escritorio con este nombre exacto: <code class="text-cyberMagenta bg-zinc-900 px-1 py-0.5 rounded">alacena.html</code></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- PASO 1: EL MOTOR SENSORIAL DE GOOGLE AI STUDIO (PROMPT 1) -->
+            <div class="cyber-glow-magenta bg-cyberCard p-6 rounded-lg relative">
+                <div class="absolute top-0 right-0 px-3 py-1 bg-cyberMagenta text-white font-bold text-xs uppercase tracking-widest animate-pulse">
+                    Acceso Requerido
+                </div>
+                <div class="flex items-center space-x-3 mb-4">
+                    <span class="p-2 bg-cyberMagenta/10 text-cyberMagenta rounded border border-cyberMagenta/30">01</span>
+                    <h2 class="text-xl font-bold tracking-wider uppercase text-white">Fase 1: Inyección de Interfaz Cyberpunk</h2>
+                </div>
+                <p class="text-gray-300 text-sm mb-4 leading-relaxed">
+                    Ingresa a <a href="https://aistudio.google.com/" target="_blank" class="text-cyberCyan underline hover:text-white transition-all font-bold">Google AI Studio</a>, copia este prompt usando el botón y pégaselo directamente a tu Androide Constructor.
+                </p>
+
+                <!-- CAJA DE PROMPT 1 -->
+                <div class="relative bg-black rounded-lg border border-cyberMagenta p-4">
+                    <div class="flex justify-between items-center mb-2 pb-2 border-b border-zinc-800">
+                        <span class="text-xs text-gray-500 uppercase tracking-widest font-mono">PROMPT_1_CASCARON_CYBERPUNK.TXT</span>
+                        <button onclick="copyText(this, 'prompt-1')" class="px-3 py-1 bg-cyberMagenta text-black font-bold text-xs uppercase rounded transition-all hover:bg-white">
+                            📋 Copiar Prompt
+                        </button>
+                    </div>
+                    <textarea id="prompt-1" readonly class="w-full bg-transparent text-gray-300 font-mono text-xs md:text-sm h-48 focus:outline-none resize-none leading-relaxed">Actúa como un desarrollador web experto en interfaces Cyberpunk. Crea un único archivo HTML llamado alacena.html que contenga una interfaz de usuario limpia, visualmente impactante y completamente funcional. 
+
+Requisitos de diseño y estructura:
+1. Estilo Visual: Fondo completamente oscuro (#0d0d11). Bordes y tipografías con colores neón (Azul ciber #00f0ff y Magenta neón #ff007f). Diseña botones grandes, planos y altamente contrastantes.
+2. Secciones en pantalla:
+   - Un título futurista superior que diga "ALACENA DIGITAL V.1.0".
+   - Un contenedor de video centralizado para activar la cámara web.
+   - Un formulario con dos campos de texto limpios: "Nombre del Producto" y "Fecha de Expiración (DD/MM/AAAA)".
+   - Un botón grande y brillante que diga "REGISTRAR EN MATRIZ".
+   - Una tabla o lista inferior donde se muestren los productos guardados.
+3. Sistema de Alertas (Semáforo Digital):
+   - Cada producto en la lista debe mostrar un indicador visual de color:
+     * ROJO: Si el producto está vencido (comparando con la fecha actual del sistema).
+     * AMARILLO: Si faltan 3 días o menos para vencer.
+     * VERDE: Si el producto está seguro.
+
+Entrega el código completo, estructurado y funcional dentro de un solo bloque de código HTML. No uses explicaciones largas, solo dame el código listo para usar.</textarea>
+                </div>
+            </div>
+
+            <!-- PASO 2: CONECTANDO LOS OJOS (PROMPT 2) -->
+            <div class="cyber-glow-cyan bg-cyberCard p-6 rounded-lg relative">
+                <div class="flex items-center space-x-3 mb-4">
+                    <span class="p-2 bg-cyberCyan/10 text-cyberCyan rounded border border-cyberCyan/30">02</span>
+                    <h2 class="text-xl font-bold tracking-wider uppercase text-white">Fase 2: Conexión de Ojos Cibernéticos (Escáner de Barras)</h2>
+                </div>
+                <p class="text-gray-300 text-sm mb-4 leading-relaxed">
+                    Una vez que el androide te entregue el primer código, indícale esta orden para integrar el escaneo por cámara y la base de datos interna.
+                </p>
+
+                <!-- CAJA DE PROMPT 2 -->
+                <div class="relative bg-black rounded-lg border border-cyberCyan p-4">
+                    <div class="flex justify-between items-center mb-2 pb-2 border-b border-zinc-800">
+                        <span class="text-xs text-gray-500 uppercase tracking-widest font-mono">PROMPT_2_ESCANER_CAMARA.TXT</span>
+                        <button onclick="copyText(this, 'prompt-2')" class="px-3 py-1 bg-cyberCyan text-black font-bold text-xs uppercase rounded transition-all hover:bg-white">
+                            📋 Copiar Prompt
+                        </button>
+                    </div>
+                    <textarea id="prompt-2" readonly class="w-full bg-transparent text-gray-300 font-mono text-xs md:text-sm h-48 focus:outline-none resize-none leading-relaxed">Ahora vamos a integrar el motor de escaneo de códigos de barras. Modifica el código anterior para incluir la librería externa 'Html5-QRCode' a través de un enlace CDN en las etiquetas del encabezado.
+
+Agrega las siguientes funciones en JavaScript:
+1. Al cargar la página, debe inicializar automáticamente la cámara trasera (en celulares) o la webcam (en laptops) dentro del contenedor de video.
+2. Cuando la cámara detecte un código de barras de cualquier producto de cocina, debe capturar el número del código de barras, colocarlo automáticamente en un campo nuevo llamado "Código de Barras" dentro del formulario y emitir una alerta visual que avise que el código fue escaneado con éxito.
+3. Almacenamiento: Haz que al presionar el botón "REGISTRAR EN MATRIZ", toda la información (Código de barras, Nombre del producto, Fecha de vencimiento y el color del semáforo) se guarde directamente en el LocalStorage del navegador web para que los datos no se borren al recargar la página.
+
+Devuelve el archivo alacena.html completamente modificado, con todos los estilos CSS and scripts JS incluidos dentro del mismo bloque de código.</textarea>
+                </div>
+            </div>
+
+            <!-- SIMULADOR INTERACTIVO DE ALACENA (PRE-VISUALIZACIÓN) -->
+            <div class="border-2 border-dashed border-cyberCyan/40 bg-black/80 p-6 rounded-lg">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <div>
+                        <span class="text-xs text-cyberCyan font-bold tracking-widest uppercase block mb-1">📟 SISTEMA DE PROTOTIPADO RÁPIDO</span>
+                        <h3 class="text-2xl font-bold tracking-tight text-white uppercase">Simulador de Alacena Cyberpunk</h3>
+                    </div>
+                    <span class="px-3 py-1 bg-cyberCyan/10 border border-cyberCyan/30 text-cyberCyan text-xs rounded mt-2 md:mt-0">
+                        Prueba aquí cómo funcionará tu Web App real
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Col Izquierda: Consola de Ingreso manual/escaneo -->
+                    <div class="bg-cyberCard p-4 rounded-lg border border-zinc-800 space-y-4">
+                        <div class="p-3 border border-cyberCyan/20 bg-zinc-950 rounded flex items-center justify-between">
+                            <span class="text-xs text-gray-400">LECTOR DE BARRAS</span>
+                            <span class="w-3 h-3 bg-cyberGreen rounded-full animate-ping"></span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="simulateScan('7501055300074', 'Leche Entera Ciber')" class="flex-1 py-2 bg-cyberCyan hover:bg-cyan-400 transition-all text-black font-bold uppercase text-xs">
+                                📷 Escanear Producto A
+                            </button>
+                            <button onclick="simulateScan('7501000121112', 'Sopa de Fideos Espaciales')" class="flex-1 py-2 bg-cyberMagenta hover:bg-magenta-400 transition-all text-white font-bold uppercase text-xs">
+                                📷 Escanear Producto B
+                            </button>
+                        </div>
+                        <div class="space-y-3 pt-2">
+                            <div>
+                                <label class="text-xs text-gray-400 block mb-1 uppercase">Código de Barras Escaneado</label>
+                                <input id="sim-barcode" type="text" readonly class="w-full bg-zinc-950 text-cyberCyan border border-zinc-800 p-2 text-xs rounded" placeholder="Presiona un botón arriba para simular la cámara">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 block mb-1 uppercase">Nombre del Producto</label>
+                                <input id="sim-name" type="text" class="w-full bg-zinc-900 text-white border border-zinc-800 p-2 text-xs rounded" placeholder="Escribe un nombre">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 block mb-1 uppercase">Fecha de Expiración (DD/MM/AAAA)</label>
+                                <input id="sim-date" type="text" class="w-full bg-zinc-900 text-white border border-zinc-800 p-2 text-xs rounded" placeholder="Ej: 25/12/2026">
+                            </div>
+                            <button onclick="registerSimItem()" class="w-full py-2.5 bg-cyberGreen text-black font-bold uppercase text-xs tracking-wider border-0 hover:bg-green-400 transition-all">
+                                💾 Registrar en Matriz Local
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Col Derecha: Monitor del Semáforo -->
+                    <div class="bg-cyberCard p-4 rounded-lg border border-zinc-800 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-xs text-gray-400 uppercase tracking-wider">PRODUCTOS REGISTRADOS EN LA ALACENA</h4>
+                                <span id="sim-counter" class="text-xs px-2 py-0.5 bg-zinc-900 border border-zinc-800 text-cyberCyan">Contador: 0</span>
+                            </div>
+                            
+                            <!-- Lista de items simulados -->
+                            <div class="space-y-2 max-h-48 overflow-y-auto pr-1" id="sim-list">
+                                <div class="text-center text-zinc-600 text-xs py-8">No hay productos en la matriz. Escanea y registra arriba.</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Mini leyenda informativa -->
+                        <div class="mt-4 pt-3 border-t border-zinc-900 grid grid-cols-3 gap-2 text-[10px] text-center">
+                            <span class="p-1 rounded bg-red-950/40 border border-red-500 text-red-400 font-bold">ROJO<br>VENCIDO</span>
+                            <span class="p-1 rounded bg-yellow-950/40 border border-cyberYellow text-cyberYellow font-bold">AMARILLO<br>&lt; 3 DÍAS</span>
+                            <span class="p-1 rounded bg-green-950/40 border border-cyberGreen text-cyberGreen font-bold">VERDE<br>SEGURO</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROTOCOLO ANTI-BUGS (ZONA DE AUXILIO ACCESIBLE) -->
+            <div class="cyber-glow-yellow bg-cyberCard p-6 rounded-lg relative">
+                <div class="absolute top-0 right-0 px-3 py-1 bg-cyberYellow text-black font-bold text-xs uppercase tracking-widest">
+                    ZONA DE SOPORTE
+                </div>
+                <div class="flex items-center space-x-3 mb-4">
+                    <span class="p-2 bg-cyberYellow/10 text-cyberYellow rounded border border-cyberYellow/30">🛡️</span>
+                    <h2 class="text-xl font-bold tracking-wider uppercase text-white">Protocolo Anti-Bugs (¿Algo falló?)</h2>
+                </div>
+                <p class="text-gray-300 text-sm mb-4">
+                    Si el código del androide presenta algún error, mantén la calma. Selecciona el problema abajo, copia la solución y envíasela de vuelta para corregir el código al instante:
+                </p>
+
+                <!-- Acordeón de Errores Comunes -->
+                <div class="space-y-3">
+                    <div class="border border-zinc-800 rounded bg-black/50 overflow-hidden">
+                        <button onclick="toggleAccordion('bug-1')" class="w-full p-4 text-left text-sm font-bold text-cyberCyan flex justify-between items-center hover:bg-zinc-900 transition-all">
+                            <span>🛑 PROBLEMA 1: El código de la IA se cortó o está incompleto</span>
+                            <span class="text-xs">▼ Expandir</span>
+                        </button>
+                        <div id="bug-1" class="hidden p-4 border-t border-zinc-800 text-xs md:text-sm text-gray-300 space-y-3 bg-zinc-950">
+                            <p>Copia esta frase de corrección exacta:</p>
+                            <div class="bg-black p-3 border border-zinc-800 flex justify-between items-center">
+                                <span class="font-mono text-xs text-cyberYellow" id="txt-bug-1">"El código que me diste se interrumpió. Por favor, vuelve a escribir todo el archivo alacena.html completo desde la primera línea hasta la última, sin omitir ni saltarte ninguna sección."</span>
+                                <button onclick="copyText(this, 'txt-bug-1')" class="px-2 py-1 bg-cyberYellow text-black font-bold text-xs rounded">Copiar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border border-zinc-800 rounded bg-black/50 overflow-hidden">
+                        <button onclick="toggleAccordion('bug-2')" class="w-full p-4 text-left text-sm font-bold text-cyberCyan flex justify-between items-center hover:bg-zinc-900 transition-all">
+                            <span>📷 PROBLEMA 2: La cámara de mi laptop o celular no enciende</span>
+                            <span class="text-xs">▼ Expandir</span>
+                        </button>
+                        <div id="bug-2" class="hidden p-4 border-t border-zinc-800 text-xs md:text-sm text-gray-300 space-y-3 bg-zinc-950">
+                            <p>Copia esta frase de corrección exacta:</p>
+                            <div class="bg-black p-3 border border-zinc-800 flex justify-between items-center">
+                                <span class="font-mono text-xs text-cyberYellow" id="txt-bug-2">"La cámara no se activa en el navegador. Modifica el código de inicialización de la cámara para que capture los errores en la consola y asegúrate de configurar los permisos correctos utilizando la librería Html5-QRCode."</span>
+                                <button onclick="copyText(this, 'txt-bug-2')" class="px-2 py-1 bg-cyberYellow text-black font-bold text-xs rounded">Copiar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border border-zinc-800 rounded bg-black/50 overflow-hidden">
+                        <button onclick="toggleAccordion('bug-3')" class="w-full p-4 text-left text-sm font-bold text-cyberCyan flex justify-between items-center hover:bg-zinc-900 transition-all">
+                            <span>💾 PROBLEMA 3: Al presionar registrar no aparece nada en la lista</span>
+                            <span class="text-xs">▼ Expandir</span>
+                        </button>
+                        <div id="bug-3" class="hidden p-4 border-t border-zinc-800 text-xs md:text-sm text-gray-300 space-y-3 bg-zinc-950">
+                            <p>Copia esta frase de corrección exacta:</p>
+                            <div class="bg-black p-3 border border-zinc-800 flex justify-between items-center">
+                                <span class="font-mono text-xs text-cyberYellow" id="txt-bug-3">"Los productos no se están renderizando en la tabla inferior al presionar el botón de registro. Revisa la función que lee los datos desde LocalStorage y asegúrate de actualizar la vista de la lista cada vez que se agrega un nuevo elemento."</span>
+                                <button onclick="copyText(this, 'txt-bug-3')" class="px-2 py-1 bg-cyberYellow text-black font-bold text-xs rounded">Copiar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOMA DE CONTROL (DECISIONES HACKER) -->
+            <div class="bg-cyberCard border border-zinc-800 p-6 rounded-lg">
+                <div class="flex items-center space-x-3 mb-4">
+                    <span class="text-cyberGreen text-xl">🚀</span>
+                    <h2 class="text-xl font-bold tracking-wider uppercase text-white">Fase de Modding (Toma de Decisiones)</h2>
+                </div>
+                <p class="text-gray-300 text-sm mb-6 leading-relaxed">
+                    ¡Tu aplicación base ya funciona! Ahora tú tienes el control creativo. Elige una de las siguientes dos expansiones para personalizar tu sistema enviándole el comando correspondiente al androide:
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Opción A -->
+                    <div class="p-5 border border-cyberCyan/30 bg-black/40 rounded-lg flex flex-col justify-between">
+                        <div>
+                            <span class="px-2 py-0.5 bg-cyberCyan/15 text-cyberCyan text-[10px] font-bold tracking-wider rounded uppercase">EXPANSIÓN AUDIO-SENSORIAL</span>
+                            <h4 class="text-lg font-bold text-white mt-2 mb-2">🔊 MÓDULO SÓNICO CIBERNÉTICO</h4>
+                            <p class="text-xs text-gray-400 mb-4 leading-relaxed">
+                                Agrega efectos de sonidos futuristas tipo "láser" cada vez que la cámara web detecte correctamente un código de barras.
+                            </p>
+                        </div>
+                        <button onclick="copyText(this, 'mod-sound')" class="w-full py-2 bg-cyberCyan text-black font-bold text-xs uppercase tracking-wider">
+                            📋 Copiar Código Sónico
+                        </button>
+                        <span id="mod-sound" class="hidden">"Modifica el código de la aplicación para añadir un efecto de sonido futurista de tipo 'láser' o 'beep' cada vez que la cámara web logre decodificar correctamente un código de barras, y un sonido de alarma si un producto registrado está en color ROJO (Vencido)."</span>
+                    </div>
+
+                    <!-- Opción B -->
+                    <div class="p-5 border border-cyberMagenta/30 bg-black/40 rounded-lg flex flex-col justify-between">
+                        <div>
+                            <span class="px-2 py-0.5 bg-cyberMagenta/15 text-cyberMagenta text-[10px] font-bold tracking-wider rounded uppercase">EXPANSIÓN DE INTERFAZ AVANZADA</span>
+                            <h4 class="text-lg font-bold text-white mt-2 mb-2">🎨 INTERFAZ HUD CON CONTADOR</h4>
+                            <p class="text-xs text-gray-400 mb-4 leading-relaxed">
+                                Agrega un contador en tiempo real para ver el stock total y haz que los productos vencidos parpadeen suavemente en color neón rojo.
+                            </p>
+                        </div>
+                        <button onclick="copyText(this, 'mod-hud')" class="w-full py-2 bg-cyberMagenta text-white font-bold text-xs uppercase tracking-wider">
+                            📋 Copiar Código HUD
+                        </button>
+                        <span id="mod-hud" class="hidden">"Modifica los estilos CSS de la aplicación para que la fila de la tabla de productos parpadee con un brillo neón suave de color rojo si el producto está vencido, y añade un contador superior que muestre de forma dinámica el número total de productos guardados en la base de datos local."</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CIERRE DE MISIÓN -->
+            <div class="border border-zinc-800 bg-zinc-950 p-6 rounded-lg text-center relative overflow-hidden">
+                <span class="text-4xl">🌟</span>
+                <h3 class="text-xl font-bold uppercase tracking-wider text-white mt-3">Las posibilidades de hackeo son infinitas</h3>
+                <p class="text-gray-400 text-xs md:text-sm max-w-2xl mx-auto mt-2 leading-relaxed">
+                    Con esta misma estructura, solo cambiando los textos que le envías a Google AI Studio, puedes construir bases de datos para inventariar tus videojuegos, catalogar tus cartas de anime favoritas o gestionar tus libros. ¡La Inteligencia Artificial es tu herramienta y tus ideas son el motor del cambio!
+                </p>
+            </div>
+
+        </section>
+
+        <!-- ==================== PESTAÑA: SECCIÓN DEL MENTOR ==================== -->
+        <section id="pane-mentor" class="hidden space-y-8">
+            
+            <!-- PANEL GENERAL PARA EL MENTOR -->
+            <div class="border-l-4 border-cyberMagenta bg-cyberCard p-6 rounded-r-lg relative">
+                <div class="absolute top-0 right-0 px-3 py-1 bg-cyberMagenta text-white font-mono text-xs uppercase">
+                    Módulo de Dirección
+                </div>
+                <h2 class="text-xl font-bold uppercase tracking-wider text-white mb-2">Panel del Facilitador (Instrucciones Directas)</h2>
+                <p class="text-gray-300 text-sm leading-relaxed">
+                    Esta guía está estructurada con bases pedagógicas adaptadas para adolescentes dentro del Espectro Autista. Minimiza las explicaciones conceptuales largas y prioriza la acción, el refuerzo inmediato y la claridad literal para evitar el agobio sensorial o cognitivo.
+                </p>
+            </div>
+
+            <!-- SCRIPT DE INTRODUCCIÓN LITERAL -->
+            <div class="bg-cyberCard border border-zinc-800 p-6 rounded-lg">
+                <div class="flex items-center space-x-2 mb-3">
+                    <span class="text-xl">💬</span>
+                    <h3 class="text-md font-bold uppercase text-cyberCyan">Script Inicial para Romper el Hielo (Decir textualmente)</h3>
+                </div>
+                <blockquote class="bg-black/60 p-4 rounded border border-cyberCyan text-gray-300 text-sm md:text-base italic leading-relaxed">
+                    "¡Bienvenidos al Crew, Netrunners! Hoy no vinimos a memorizar líneas aburridas de código ni a frustrarnos tecleando letras en una pantalla negra durante horas. Hoy vamos a tomar el control de una de las herramientas más potentes del planeta: Google AI Studio. Nosotros somos el cerebro de la operación; la Inteligencia Artificial es nuestro androide constructor. Nuestra misión es hackear el sistema de suministros y crear una Alacena Digital en tiempo récord. Si el sistema arroja un error, no es un fallo de ustedes: es un bug en la matriz que la IA va a resolver por nosotros. Iniciemos la secuencia."
+                </blockquote>
+            </div>
+
+            <!-- PROTOCOLO DE CONDUCCIÓN SENSORIAL -->
+            <div class="bg-cyberCard border border-zinc-800 p-6 rounded-lg">
+                <div class="flex items-center space-x-2 mb-4">
+                    <span class="text-xl">🧠</span>
+                    <h3 class="text-md font-bold uppercase text-cyberYellow">Matriz de Regulación Emocional y Acción Inmediata</h3>
+                </div>
+                <p class="text-xs text-gray-400 mb-4">
+                    Utiliza esta tabla para monitorizar el estado emocional de tus tres alumnos durante la sesión de 2 horas. No esperes a que ocurra una crisis; intervén sutilmente bajo estas pautas.
+                </p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs md:text-sm">
+                        <thead>
+                            <tr class="border-b border-zinc-800 text-cyberCyan">
+                                <th class="py-2 px-3 uppercase font-bold">Comportamiento Detectado</th>
+                                <th class="py-2 px-3 uppercase font-bold">Causa Probable</th>
+                                <th class="py-2 px-3 uppercase font-bold">Acción Directa del Mentor (Script)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-zinc-900 text-gray-300">
+                            <tr>
+                                <td class="py-3 px-3 font-semibold text-white">Bloqueo Tipo A:<br><span class="text-zinc-500 font-normal">Manos fuera del teclado, mirada perdida o fija por más de 3 min.</span></td>
+                                <td class="py-3 px-3">Sobrecarga ante el código masivo devuelto por la IA. El alumno no sabe dónde pegarlo o cómo continuar.</td>
+                                <td class="py-3 px-3">Acércate y dale una orden física simple:<br><span class="text-cyberCyan font-mono">"Hacker, control de comandos. Selecciona este bloque de código completo, dale copiar y vamos a pegarlo juntos en nuestro archivo."</span></td>
+                            </tr>
+                            <tr class="bg-zinc-950/45">
+                                <td class="py-3 px-3 font-semibold text-white">Bloqueo Tipo B:<br><span class="text-zinc-500 font-normal">Tapping fuerte en la mesa, balanceo repetitivo incrementado.</span></td>
+                                <td class="py-3 px-3">Frustración acumulada porque la webcam no enciende o el código dio error de inmediato.</td>
+                                <td class="py-3 px-3">Frena la tarea de golpe con un protocolo físico de regulación:<br><span class="text-cyberYellow font-mono">"Protocolo de enfriamiento de servidores. Pantallas a 45 grados. Tomamos un sorbo de agua durante 30 segundos. El error es del androide, ahora lo reprogramamos."</span></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-3 font-semibold text-white">Bloqueo Tipo C:<br><span class="text-zinc-500 font-normal">Inmovilidad absoluta ante opciones de modificación de código.</span></td>
+                                <td class="py-3 px-3">Ansiedad por elección múltiple (parálisis por análisis frente a un abanico de infinitos colores o estilos).</td>
+                                <td class="py-3 px-3">Cierra el universo de alternativas a solo dos opciones predefinidas:<br><span class="text-cyberGreen font-mono">"¿Deseas activar el Modo Sonido Ciber (Opción A) o prefieres que los elementos vencidos brillen en rojo neón (Opción B)?"</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ARQUITECTURA TÉCNICA RECOMENDADA PARA EL PROYECTO -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-cyberCard border border-zinc-800 p-5 rounded-lg">
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-2">📋 Check-List Técnico del Facilitador</h4>
+                    <ul class="space-y-2 text-xs text-gray-300">
+                        <li class="flex items-center space-x-2">
+                            <span class="text-cyberGreen">✔</span>
+                            <span>Garantizar acceso a internet sin bloqueos para Gemini en Google AI Studio.</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <span class="text-cyberGreen">✔</span>
+                            <span>Asegurarse de usar navegadores modernos (Chrome, Edge o Safari) para el acceso seguro a la webcam.</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <span class="text-cyberGreen">✔</span>
+                            <span>Tener a mano 2 o 3 productos con códigos de barra de cocina reales para las pruebas físicas de escaneo.</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-cyberCard border border-zinc-800 p-5 rounded-lg">
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-2">💡 Consejo de Cierre de Sesión</h4>
+                    <p class="text-xs text-gray-400 leading-relaxed">
+                        Al terminar la sesión de 2 horas, haz un resumen conectando su proyecto con sus videojuegos preferidos. Explícales que la base de datos de "inventario de alimentos" funciona exactamente igual que el inventario de ítems, armas o personajes de sus videojuegos favoritos. Eso catalizará su hiperfoco tecnológico de forma asombrosa.
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- FOOTER CON DERECHOS RESERVADOS VALENCIA MENTORING -->
+    <footer class="mt-12 py-6 border-t border-zinc-800 bg-black/60 text-center space-y-2">
+        <p class="text-xs text-gray-500 uppercase tracking-widest">
+            SISTEMA DE ENTRENAMIENTO CYBERPUNK • OPERACIÓN ALACENA DIGITAL • AUTORIZACIÓN CREW LEVEL-1
+        </p>
+        <p class="text-[10px] text-cyberCyan/60 uppercase tracking-widest font-mono">
+            © VALENCIA MENTORING. TODOS LOS DERECHOS RESERVADOS. PROTEGIDO POR LA MATRIZ DE SEGURIDAD INTERNA.
+        </p>
+    </footer>
+
+    <!-- LOGICA SCRIPT DEL MANUAL INTERACTIVO -->
+    <script>
+        // Tab switcher
+        function switchTab(tab) {
+            const btnStudent = document.getElementById('btn-student');
+            const btnMentor = document.getElementById('btn-mentor');
+            const paneStudent = document.getElementById('pane-student');
+            const paneMentor = document.getElementById('pane-mentor');
+
+            if (tab === 'student') {
+                btnStudent.className = "px-4 py-2 text-sm uppercase tracking-wider transition-all font-bold bg-cyberCyan text-black cyber-glow-cyan";
+                btnMentor.className = "px-4 py-2 text-sm uppercase tracking-wider transition-all font-bold text-gray-400 hover:text-white";
+                paneStudent.classList.remove('hidden');
+                paneMentor.classList.add('hidden');
+                showNotification("CONEXIÓN DE CREW INICIADA", "success");
+            } else {
+                btnMentor.className = "px-4 py-2 text-sm uppercase tracking-wider transition-all font-bold bg-cyberMagenta text-white cyber-glow-magenta";
+                btnStudent.className = "px-4 py-2 text-sm uppercase tracking-wider transition-all font-bold text-gray-400 hover:text-white";
+                paneMentor.classList.remove('hidden');
+                paneStudent.classList.add('hidden');
+                showNotification("CONEXIÓN DE MENTOR AUTORIZADA", "warning");
+            }
+        }
+
+        // Sistema de Alertas Toast
+        function showNotification(message, type = "success") {
+            const toast = document.getElementById('cyber-toast');
+            const msgEl = document.getElementById('toast-message');
+            
+            msgEl.innerText = message;
+            
+            // Colores por tipo
+            toast.className = "fixed bottom-5 right-5 z-50 transform transition-all duration-300 ease-out px-6 py-4 rounded shadow-[0_0_20px_rgba(0,240,255,0.4)] flex items-center space-x-3 bg-cyberCard border ";
+            
+            if (type === "success") {
+                toast.classList.add("border-cyberCyan", "text-cyberCyan");
+            } else if (type === "warning") {
+                toast.classList.add("border-cyberMagenta", "text-cyberMagenta");
+            } else {
+                toast.classList.add("border-cyberYellow", "text-cyberYellow");
+            }
+
+            // Animar entrada
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Copiador seguro compatible con iframe sandbox
+        function copyText(button, textId) {
+            const textElement = document.getElementById(textId);
+            const textToCopy = textElement.value || textElement.innerText;
+            
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = textToCopy;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showNotification("Inyectando prompt al portapapeles", "success");
+                
+                const originalText = button.innerHTML;
+                button.innerHTML = "⚡ ¡COPIADO!";
+                button.classList.remove("bg-cyberCyan", "bg-cyberMagenta");
+                button.classList.add("bg-cyberGreen", "text-black");
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove("bg-cyberGreen", "text-black");
+                    if (textId.includes('prompt-1') || textId.includes('mod-hud')) {
+                        button.classList.add("bg-cyberMagenta");
+                    } else {
+                        button.classList.add("bg-cyberCyan");
+                    }
+                }, 2000);
+            } catch (err) {
+                showNotification("Selecciona el texto manualmente.", "error");
+            }
+            document.body.removeChild(tempTextArea);
+        }
+
+        // Acordeón de Errores
+        function toggleAccordion(id) {
+            const el = document.getElementById(id);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+
+        // Tracker de Checkbox de Misión
+        const checkedSteps = [false, false, false, false, false];
+        function toggleMissionCheck(index) {
+            checkedSteps[index] = !checkedSteps[index];
+            const card = document.getElementById(`step-${index}`);
+            const text = document.getElementById(`check-icon-${index}`);
+            
+            if (checkedSteps[index]) {
+                card.classList.add('border-cyberGreen', 'bg-cyberGreen/10');
+                text.innerText = "🟢 Completado";
+                text.className = "text-xs text-cyberGreen block mt-1 font-bold";
+                showNotification(`FASE ${index} MARCADOR COMPLETADO`, "success");
+            } else {
+                card.classList.remove('border-cyberGreen', 'bg-cyberGreen/10');
+                text.innerText = "⚪ Pendiente";
+                text.className = "text-xs text-zinc-600 block mt-1";
+            }
+        }
+
+        // --- SISTEMA SIMULADOR DE ALACENA (PRE-VISUALIZADOR) ---
+        let simInventory = [];
+
+        function simulateScan(barcode, defaultName) {
+            document.getElementById('sim-barcode').value = barcode;
+            document.getElementById('sim-name').value = defaultName;
+            
+            // Generar fecha de expiración de prueba simulada
+            const today = new Date();
+            if (barcode.includes('074')) {
+                // Producto vencido (Ayer)
+                today.setDate(today.getDate() - 1);
+            } else {
+                // Seguro (En 10 días)
+                today.setDate(today.getDate() + 10);
+            }
+            
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            
+            document.getElementById('sim-date').value = `${dd}/${mm}/${yyyy}`;
+            showNotification("CÁMERA DETECTÓ CÓDIGO", "success");
+        }
+
+        function registerSimItem() {
+            const barcode = document.getElementById('sim-barcode').value;
+            const name = document.getElementById('sim-name').value;
+            const dateStr = document.getElementById('sim-date').value;
+
+            if (!barcode || !name || !dateStr) {
+                showNotification("Completa los datos para registrar", "warning");
+                return;
+            }
+
+            // Validar la alerta (Rojo, Amarillo, Verde)
+            let color = 'cyberGreen';
+            let alertLabel = 'Seguro';
+            
+            try {
+                const parts = dateStr.split('/');
+                const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                
+                const diffTime = expDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays < 0) {
+                    color = 'red-500';
+                    alertLabel = 'Vencido';
+                } else if (diffDays <= 3) {
+                    color = 'cyberYellow';
+                    alertLabel = 'Por vencer';
+                }
+            } catch (e) {
+                // Si la fecha falla, por defecto verde
+            }
+
+            const item = { barcode, name, dateStr, color, alertLabel };
+            simInventory.unshift(item); // Insertar al inicio de la tabla simulada
+            renderSimList();
+
+            // Limpiar campos del formulario simulador
+            document.getElementById('sim-barcode').value = '';
+            document.getElementById('sim-name').value = '';
+            document.getElementById('sim-date').value = '';
+            showNotification("¡PRODUCTO REGISTRADO EN SIMULACIÓN!", "success");
+        }
+
+        function renderSimList() {
+            const listEl = document.getElementById('sim-list');
+            const counterEl = document.getElementById('sim-counter');
+            
+            counterEl.innerText = `Contador: ${simInventory.length}`;
+
+            if (simInventory.length === 0) {
+                listEl.innerHTML = `<div class="text-center text-zinc-600 text-xs py-8">No hay productos en la matriz. Escanea y registra arriba.</div>`;
+                return;
+            }
+
+            listEl.innerHTML = simInventory.map((item, index) => `
+                <div class="p-3 border border-zinc-800 bg-black/40 rounded flex justify-between items-center text-xs">
+                    <div>
+                        <div class="font-bold text-white uppercase">${item.name}</div>
+                        <div class="text-[10px] text-gray-500 font-mono">CODE: ${item.barcode} | EXP: ${item.dateStr}</div>
+                    </div>
+                    <span class="px-2 py-1 text-[9px] font-bold border rounded uppercase bg-black text-${item.color} border-${item.color}">
+                        ${item.alertLabel}
+                    </span>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
