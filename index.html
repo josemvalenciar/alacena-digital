@@ -118,6 +118,39 @@
         <span id="toast-message" class="text-sm font-semibold uppercase tracking-wider">Acción procesada con éxito</span>
     </div>
 
+    <!-- Modal de Bloqueo de Contraseña Cyberpunk -->
+    <div id="password-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md hidden">
+        <div class="bg-cyberCard border-2 border-cyberMagenta p-8 rounded-lg max-w-md w-full mx-4 relative cyber-glow-magenta">
+            <!-- Detalles estéticos angulares -->
+            <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-cyberCyan"></div>
+            <div class="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-cyberCyan"></div>
+            <div class="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-cyberCyan"></div>
+            <div class="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-cyberCyan"></div>
+            
+            <div class="text-center space-y-4">
+                <span class="text-4xl animate-pulse">🔐</span>
+                <h3 class="text-xl font-bold uppercase tracking-widest text-cyberMagenta">SISTEMA ENCRIPTADO</h3>
+                <p class="text-xs text-gray-400 uppercase tracking-wider">Se requiere clave de descifrado nivel Director para acceder al Módulo Mentor.</p>
+                
+                <div class="space-y-2 pt-2">
+                    <input id="mentor-password-input" type="password" placeholder="INGRESE ACCESO MATRIZ" 
+                           onkeydown="if(event.key === 'Enter') checkMentorPassword()"
+                           class="w-full bg-zinc-950 text-cyberMagenta border border-cyberMagenta/50 p-3 text-center font-mono tracking-widest text-sm focus:outline-none focus:border-cyberCyan focus:ring-1 focus:ring-cyberCyan rounded">
+                    <p id="password-error" class="text-[10px] text-red-500 uppercase tracking-widest hidden">❌ CLAVE ERRÓNEA - PROTOCOLO DE ALARMA ACTIVO</p>
+                </div>
+                
+                <div class="flex space-x-2 pt-4">
+                    <button onclick="closePasswordModal()" class="flex-1 py-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-gray-400 font-bold uppercase text-xs tracking-wider transition-all">
+                        CANCELAR
+                    </button>
+                    <button onclick="checkMentorPassword()" class="flex-1 py-2 bg-cyberMagenta text-white font-bold uppercase text-xs tracking-wider hover:bg-pink-600 transition-all">
+                        DESBLOQUEAR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- HEADER FUTURISTA -->
     <header class="border-b-2 border-cyberCyan bg-black/80 py-6 mb-8 relative overflow-hidden">
         <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,240,255,0.1)_1px,transparent_1px)] bg-[size:100px_100%] animate-pulse"></div>
@@ -603,6 +636,9 @@ Devuelve el archivo alacena.html completamente modificado, con todos los estilos
 
     <!-- LOGICA SCRIPT DEL MANUAL INTERACTIVO -->
     <script>
+        // Control de encriptación para pestaña Mentor
+        let mentorUnlocked = false;
+
         // Tab switcher
         function switchTab(tab) {
             const btnStudent = document.getElementById('btn-student');
@@ -616,12 +652,51 @@ Devuelve el archivo alacena.html completamente modificado, con todos los estilos
                 paneStudent.classList.remove('hidden');
                 paneMentor.classList.add('hidden');
                 showNotification("CONEXIÓN DE CREW INICIADA", "success");
+            } else if (tab === 'mentor') {
+                if (!mentorUnlocked) {
+                    openPasswordModal();
+                } else {
+                    activateMentorView(btnStudent, btnMentor, paneStudent, paneMentor);
+                }
+            }
+        }
+
+        // Activador real de la vista del mentor
+        function activateMentorView(btnStudent, btnMentor, paneStudent, paneMentor) {
+            btnMentor.className = "px-4 py-2 text-sm uppercase tracking-wider transition-all font-bold bg-cyberMagenta text-white cyber-glow-magenta";
+            btnStudent.className = "px-4 py-2 text-sm uppercase tracking-wider transition-all font-bold text-gray-400 hover:text-white";
+            paneMentor.classList.remove('hidden');
+            paneStudent.classList.add('hidden');
+            showNotification("CONEXIÓN DE MENTOR AUTORIZADA", "warning");
+        }
+
+        // --- SISTEMA DE DIÁLOGO DE CONTRASEÑA ---
+        function openPasswordModal() {
+            document.getElementById('password-modal').classList.remove('hidden');
+            document.getElementById('mentor-password-input').value = '';
+            document.getElementById('password-error').classList.add('hidden');
+            setTimeout(() => {
+                document.getElementById('mentor-password-input').focus();
+            }, 100);
+        }
+
+        function closePasswordModal() {
+            document.getElementById('password-modal').classList.add('hidden');
+        }
+
+        function checkMentorPassword() {
+            const inputVal = document.getElementById('mentor-password-input').value;
+            const errorMsg = document.getElementById('password-error');
+            
+            if (inputVal === 'Jose.valencia28') {
+                mentorUnlocked = true;
+                closePasswordModal();
+                showNotification("DECRIPCIÓN EXITOSA - ACCESO CONCEDIDO", "success");
+                // Forzar cambio visual
+                switchTab('mentor');
             } else {
-                btnMentor.className = "px-4 py-2 text-sm uppercase tracking-wider transition-all font-bold bg-cyberMagenta text-white cyber-glow-magenta";
-                btnStudent.className = "px-4 py-2 text-sm uppercase tracking-wider transition-all font-bold text-gray-400 hover:text-white";
-                paneMentor.classList.remove('hidden');
-                paneStudent.classList.add('hidden');
-                showNotification("CONEXIÓN DE MENTOR AUTORIZADA", "warning");
+                errorMsg.classList.remove('hidden');
+                showNotification("CLAVE ERRÓNEA", "warning");
             }
         }
 
